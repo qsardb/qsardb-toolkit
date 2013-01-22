@@ -1,0 +1,303 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2012 University of Tartu
+-->
+<project>
+	<import
+		file="common.xml"
+	/>
+	<import
+		file="macromodel.xml"
+	/>
+	<import
+		file="smiles.xml"
+	/>
+
+	<target
+		name="mopac-init"
+	>
+		<property
+			file="mopac.properties"
+		/>
+	</target>
+
+	<target
+		name="calculate-inchi"
+		description="Performs a MOPAC calculation, starting from the InChI code"
+		depends="common-init,mopac-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="mopac-inchi"
+			/>
+			<param
+				name="step.file"
+				value="${mopac.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="mopac-inchi"
+		if="mopac-inchi-do"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+			inputstring="${compound.inchi}"
+		>
+			<arg value="-iinchi"/>
+			<arg value="-omopcrt"/>
+			<arg value="${mopac.cargo}.dat"/>
+			<arg value="-h"/>
+			<arg value="--gen3D"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${mopac.keywords}"/>
+		</exec>
+		<antcall
+			target="mopac"
+		>
+			<param
+				name="mopac-file"
+				value="${mopac.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="calculate-smiles"
+		description="Performs a MOPAC calculation, starting from the SMILES"
+		depends="common-init,smiles-init,mopac-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="mopac-smiles"
+			/>
+			<param
+				name="step.file"
+				value="${mopac.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="mopac-smiles"
+		if="mopac-smiles-do"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+		>
+			<arg value="-ismi"/>
+			<arg value="${smiles.cargo}"/>
+			<arg value="-omopcrt"/>
+			<arg value="${mopac.cargo}.dat"/>
+			<arg value="-h"/>
+			<arg value="--gen3D"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${mopac.keywords}"/>
+		</exec>
+		<antcall
+			target="mopac"
+		>
+			<param
+				name="mopac-file"
+				value="${mopac.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="calculate-macromodel"
+		description="Performs a MOPAC calculation, starting from the MacroModel Cargo"
+		depends="common-init,macromodel-init,mopac-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="mopac-macromodel"
+			/>
+			<param
+				name="step.file"
+				value="${mopac.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="mopac-macromodel"
+	>
+		<antcall
+			target="macromodel-convert"
+		/>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+		>
+			<arg value="-imol2"/>
+			<arg value="${macromodel.cargo}.mol2"/>
+			<arg value="-omopcrt"/>
+			<arg value="${mopac.cargo}.dat"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${mopac.keywords}"/>
+		</exec>
+		<antcall
+			target="macromodel-convert-clean"
+		/>
+		<antcall
+			target="mopac"
+		>
+			<param
+				name="mopac-file"
+				value="${mopac.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="calculate-mopac"
+		description="Performs a MOPAC calculation, starting from the MOPAC Cargo"
+		depends="common-init,mopac-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="mopac-mopac"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="mopac-mopac"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+		>
+			<arg value="-imopout"/>
+			<arg value="${mopac.cargo}"/>
+			<arg value="-omopcrt"/>
+			<arg value="${mopac.cargo}.dat"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${mopac.keywords}"/>
+		</exec>
+		<antcall
+			target="mopac"
+		>
+			<param
+				name="mopac-file"
+				value="${mopac.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="mopac"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			error="${qdb.compound.dir}/${mopac-file}.error"
+			executable="${mopac.exe}"
+			failonerror="true"
+			output="${qdb.compound.dir}/${mopac-file}.output"
+		>
+			<arg value="${mopac-file}.dat"/>
+		</exec>
+		<!-- Check output file -->
+		<loadfile
+			property="mopac-result"
+			srcFile="${qdb.compound.dir}/${mopac-file}.out"
+		/>
+		<fail
+			message="MOPAC calculation ${mopac-file} failed"
+		>
+			<condition>
+				<not>
+					<contains
+						string="${mopac-result}"
+						substring="SCF FIELD WAS ACHIEVED"
+					/>
+				</not>
+			</condition>
+		</fail>
+		<fail
+			message="MOPAC calculation ${mopac-file} failed"
+		>
+			<condition>
+				<not>
+					<contains
+						string="${mopac-result}"
+						substring="== MOPAC DONE =="
+					/>
+				</not>
+			</condition>
+		</fail>
+		<!-- Check InChI -->
+		<antcall
+			target="mopac-check"
+		>
+			<param
+				name="mopac-file"
+				value="${mopac-file}.out"
+			/>
+		</antcall>
+		<!-- Clean up -->
+		<copy
+			file="${qdb.compound.dir}/${mopac-file}.out"
+			tofile="${qdb.compound.dir}/${mopac-file}"
+		/>
+		<delete>
+			<fileset 
+				dir="${qdb.compound.dir}"
+				excludes="${mopac-file}"
+				includes="${mopac-file}.*"
+			/>
+		</delete>
+	</target>
+
+	<target
+		name="mopac-check"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			errorproperty="mopac.inchi.error"
+			executable="${babel.exe}"
+			failonerror="true"
+			outputproperty="mopac.inchi.output"
+		>
+			<arg value="-imopout"/>
+			<arg value="${mopac-file}"/>
+			<arg value="-oinchi"/>
+		</exec>
+		<antcall
+			target="inchi-check"
+		>
+			<param
+				name="inchi"
+				value="${mopac.inchi.output}"
+			/>
+		</antcall>
+	</target>
+</project>

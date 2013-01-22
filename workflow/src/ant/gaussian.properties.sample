@@ -1,0 +1,5 @@
+gaussian.exe=g03
+
+gaussian.cargo=gaussian-output
+
+gaussian.keywords=#P HF/STO-6G Test Opt

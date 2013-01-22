@@ -1,0 +1,291 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2012 University of Tartu
+-->
+<project>
+	<import
+		file="common.xml"
+	/>
+	<import
+		file="macromodel.xml"
+	/>
+	<import
+		file="smiles.xml"
+	/>
+
+	<target
+		name="gaussian-init"
+	>
+		<property
+			file="gaussian.properties"
+		/>
+	</target>
+
+	<target
+		name="calculate-inchi"
+		description="Performs a Gaussian calculation, starting from the InChI code"
+		depends="common-init,gaussian-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="gaussian-inchi"
+			/>
+			<param
+				name="step.file"
+				value="${gaussian.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="gaussian-inchi"
+		if="gaussian-inchi-do"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+			inputstring="${compound.inchi}"
+		>
+			<arg value="-iinchi"/>
+			<arg value="-ogau"/>
+			<arg value="${gaussian.cargo}.com"/>
+			<arg value="-h"/>
+			<arg value="--gen3D"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${gaussian.keywords}"/>
+		</exec>
+		<antcall
+			target="gaussian"
+		>
+			<param
+				name="gaussian-file"
+				value="${gaussian.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="calculate-smiles"
+		description="Performs a Gaussian calculation, starting from the SMILES"
+		depends="common-init,smiles-init,gaussian-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="gaussian-smiles"
+			/>
+			<param
+				name="step.file"
+				value="${gaussian.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="gaussian-smiles"
+		if="gaussian-smiles-do"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+		>
+			<arg value="-ismi"/>
+			<arg value="${smiles.cargo}"/>
+			<arg value="-ogau"/>
+			<arg value="${gaussian.cargo}.com"/>
+			<arg value="-h"/>
+			<arg value="--gen3D"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${gaussian.keywords}"/>
+		</exec>
+		<antcall
+			target="gaussian"
+		>
+			<param
+				name="gaussian-file"
+				value="${gaussian.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="calculate-macromodel"
+		description="Performs a Gaussian calculation, starting from the MacroModel Cargo"
+		depends="common-init,macromodel-init,gaussian-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="gaussian-macromodel"
+			/>
+			<param
+				name="step.file"
+				value="${gaussian.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="gaussian-macromodel"
+	>
+		<antcall
+			target="macromodel-convert"
+		/>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+		>
+			<arg value="-imol2"/>
+			<arg value="${macromodel.cargo}.mol2"/>
+			<arg value="-ogau"/>
+			<arg value="${gaussian.cargo}.com"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${gaussian.keywords}"/>
+		</exec>
+		<antcall
+			target="macromodel-convert-clean"
+		/>
+		<antcall
+			target="gaussian"
+		>
+			<param
+				name="gaussian-file"
+				value="${gaussian.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="calculate-gaussian"
+		description="Performs a Gaussian calculation, starting from the Gaussian Cargo"
+		depends="common-init,gaussian-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="gaussian-gaussian"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="gaussian-gaussian"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+		>
+			<arg value="-ig03"/>
+			<arg value="${gaussian.cargo}"/>
+			<arg value="-ogau"/>
+			<arg value="${gaussian.cargo}.com"/>
+			<arg value="--title"/>
+			<arg value="${compound.name}"/>
+			<arg value="-xk"/>
+			<arg value="${gaussian.keywords}"/>
+		</exec>
+		<antcall
+			target="gaussian"
+		>
+			<param
+				name="gaussian-file"
+				value="${gaussian.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="gaussian"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			error="${qdb.compound.dir}/${gaussian-file}.error"
+			executable="${gaussian.exe}"
+			failonerror="true"
+			output="${qdb.compound.dir}/${gaussian-file}.output"
+		>
+			<arg value="${gaussian-file}.com"/>
+		</exec>
+		<!-- Check output file -->
+		<loadfile
+			property="gaussian-result"
+			srcFile="${qdb.compound.dir}/${gaussian-file}.log"
+		/>
+		<fail
+			message="Gaussian calculation ${gaussian-file} failed"
+		>
+			<condition>
+				<not>
+					<contains
+						string="${gaussian-result}"
+						substring="Normal termination of Gaussian"
+					/>
+				</not>
+			</condition>
+		</fail>
+		<!-- Check InChI -->
+		<antcall
+			target="gaussian-check"
+		>
+			<param
+				name="gaussian-file"
+				value="${gaussian-file}.log"
+			/>
+		</antcall>
+		<!-- Clean up -->
+		<copy
+			file="${qdb.compound.dir}/${gaussian-file}.log"
+			tofile="${qdb.compound.dir}/${gaussian-file}"
+		/>
+		<delete>
+			<fileset 
+				dir="${qdb.compound.dir}"
+				excludes="${gaussian-file}"
+				includes="${gaussian-file}.*"
+			/>
+		</delete>
+	</target>
+
+	<target
+		name="gaussian-check"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			errorproperty="gaussian.inchi.error"
+			executable="${babel.exe}"
+			failonerror="true"
+			outputproperty="gaussian.inchi.output"
+		>
+			<arg value="-ig03"/>
+			<arg value="${gaussian-file}"/>
+			<arg value="-oinchi"/>
+		</exec>
+		<antcall
+			target="inchi-check"
+		>
+			<param
+				name="inchi"
+				value="${gaussian.inchi.output}"
+			/>
+		</antcall>
+	</target>
+</project>

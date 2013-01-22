@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2012 University of Tartu
+-->
+<project>
+	<target 
+		name="common-init"
+	>
+		<property
+			file="common.properties"
+		/>
+
+		<available
+			file="${qdb.dir}/archive.xml"
+			property="archive.xml"
+		/>
+		<fail
+			message="Cannot find archive descriptor file ${qdb.dir}/archive.xml"
+			unless="archive.xml"
+		/>
+
+		<available
+			file="${qdb.dir}/compound.properties"
+			property="compound.properties"
+		/>
+		<fail
+			message="Cannot find compound properties file ${qdb.dir}/compound.properties"
+			unless="compound.properties"
+		/>
+
+		<property 
+			file="${qdb.dir}/compound.properties"
+		/>
+		<property
+			name="qdb.compound.dir"
+			value="${qdb.dir}/compounds/${compound.id}"
+		/>
+
+		<mkdir
+			dir="${qdb.compound.dir}"
+		/>
+	</target>
+
+	<target
+		name="inchi-check"
+	>
+		<typedef
+			name="inchiequals"
+			classname="org.qsardb.toolkit.workflow.InChIEqualsCondition"
+		/>
+
+		<condition
+			property="inchi.equals"
+		>
+			<inchiequals
+				left="${compound.inchi}"
+				right="${inchi}"
+			/>
+		</condition>
+		<fail
+			message="Compound ${compound.id} (${compound.name}): expected InChI &quot;${compound.inchi}&quot; vs. actual InChI &quot;${inchi}&quot;"
+			unless="inchi.equals"
+		/>
+	</target>
+
+	<target
+		name="step-do"
+	>
+		<condition
+			property="${step}-do"
+		>
+			<not>
+				<available
+					file="${qdb.compound.dir}/${step.file}"
+				/>
+			</not>
+		</condition>
+		<antcall
+			target="${step}"
+		/>
+	</target>
+</project>

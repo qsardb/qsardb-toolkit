@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2012 University of Tartu
+-->
+<project>
+	<import
+		file="common.xml"
+	/>
+
+	<target
+		name="smiles-init"
+	>
+		<property
+			file="smiles.properties"
+		/>
+	</target>
+
+	<target
+		name="convert-inchi"
+		description="Performs a conversion, starting from the InChI code"
+		depends="common-init,smiles-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="smiles-inchi"
+			/>
+			<param
+				name="step.file"
+				value="${smiles.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="smiles-inchi"
+		if="smiles-inchi-do"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+			inputstring="${compound.inchi}"
+		>
+			<arg value="-iinchi"/>
+			<arg value="-osmi"/>
+			<arg value="${smiles.cargo}.tmp"/>
+			<arg value="-xc"/>
+		</exec>
+		<!-- Trim the trailing tab and newline characters -->
+		<move
+			file="${qdb.compound.dir}/${smiles.cargo}.tmp"
+			tofile="${qdb.compound.dir}/${smiles.cargo}"
+		>
+			<filterchain>
+				<trim/>
+				<striplinebreaks/>
+			</filterchain>
+		</move>
+	</target>
+</project>

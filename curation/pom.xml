@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.qsardb</groupId>
+		<artifactId>qsardb-toolkit</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>org.qsardb.toolkit</groupId>
+	<artifactId>curation</artifactId>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.qsardb</groupId>
+			<artifactId>model</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.qsardb.storage</groupId>
+			<artifactId>directory</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.qsardb.resolution</groupId>
+			<artifactId>chemical</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>chemaxon.marvin</groupId>
+			<artifactId>MarvinBeans-all</artifactId>
+			<version>5.5.0.0</version>
+		</dependency>
+		<!-- 
+		MarvinBeans depends on a modified JNI-InChI library.
+		For more information see: http://www.chemaxon.com/marvin/help/formats/inchi-doc.html
+
+		The compiled version of the library is available in the lib directory of MarvinBeans as the file jni-inchi_07.jar.
+		It must be installed into the Maven local repository using the following command:
+		mvn install:install-file -DgroupId=chemaxon.marvin -DartifactId=jni-inchi -Dversion=0.7 -Dpackaging=jar -Dfile=jni-inchi_07.jar
+		-->
+		<dependency>
+			<groupId>chemaxon.marvin</groupId>
+			<artifactId>jni-inchi</artifactId>
+			<version>0.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>www.ebi.ac.uk</id>
+			<url>http://www.ebi.ac.uk/~biobabel/maven2_repo</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<outputFile>${project.build.directory}/${project.artifactId}-toolkit-${project.version}.jar</outputFile>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

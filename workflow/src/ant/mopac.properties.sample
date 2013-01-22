@@ -1,0 +1,5 @@
+mopac.exe=mopac
+
+mopac.cargo=mopac-output
+
+mopac.keywords=PM6 GNORM=0.1

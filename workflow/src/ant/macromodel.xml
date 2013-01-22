@@ -1,0 +1,239 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2012 University of Tartu
+-->
+<project>
+	<import
+		file="common.xml"
+	/>
+	<import
+		file="smiles.xml"
+	/>
+
+	<target
+		name="macromodel-init"
+	>
+		<property 
+			file="macromodel.properties"
+		/>
+	</target>
+
+	<target
+		name="calculate-inchi"
+		description="Performs a MacroModel calculation, starting from the InChI code"
+		depends="common-init,macromodel-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="macromodel-inchi"
+			/>
+			<param
+				name="step.file"
+				value="${macromodel.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="macromodel-inchi"
+		if="macromodel-inchi-do"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+			inputstring="${compound.inchi}"
+		>
+			<arg value="-iinchi"/>
+			<arg value="-ommod"/>
+			<arg value="macromodel.mmod"/>
+			<!-- XXX: Note the dummy 'X' character in front of the compound name -->
+			<arg value="--title"/>
+			<arg value="X${compound.name}"/>
+			<arg value="-h"/>
+			<arg value="--gen3D"/>
+		</exec>
+		<antcall
+			target="macromodel"
+		/>
+	</target>
+
+	<target
+		name="calculate-smiles"
+		description="Performs a MacroModel calculation, starting from the SMILES"
+		depends="common-init,smiles-init,macromodel-init"
+	>
+		<antcall
+			target="step-do"
+		>
+			<param
+				name="step"
+				value="macromodel-smiles"
+			/>
+			<param
+				name="step.file"
+				value="${macromodel.cargo}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="macromodel-smiles"
+		if="macromodel-smiles-do"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${babel.exe}"
+			failonerror="true"
+		>
+			<arg value="-ismi"/>
+			<arg value="${smiles.cargo}"/>
+			<arg value="-ommod"/>
+			<arg value="macromodel.mmod"/>
+			<!-- XXX: Note the dummy 'X' character in front of the compound name -->
+			<arg value="--title"/>
+			<arg value="X${compound.name}"/>
+			<arg value="-h"/>
+			<arg value="--gen3D"/>
+		</exec>
+		<antcall
+			target="macromodel"
+		/>
+	</target>
+
+	<target
+		name="macromodel"
+	>
+		<copy
+			file="macromodel.com"
+			tofile="${qdb.compound.dir}/macromodel.com"
+		/>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${bmin.exe}"
+			failonerror="true"
+		>
+			<arg value="-LOCAL"/>
+			<arg value="-WAIT"/>
+			<arg value="macromodel"/>
+		</exec>
+		<!-- Check output file -->
+		<loadfile
+			property="macromodel-result"
+			srcFile="${qdb.compound.dir}/macromodel.log"
+		/>
+		<fail
+			message="MacroModel conformation search failed"
+		>
+			<condition>
+				<not>
+					<contains
+						string="${macromodel-result}"
+						substring="BatchMin: normal termination"
+					/>
+				</not>
+			</condition>
+		</fail>
+		<!-- Extract the lowest-energy conformer -->
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${maesubset.exe}"
+			failonerror="true"
+		>
+			<arg value="-n"/>
+			<arg value="1:1"/>
+			<arg value="-o"/>
+			<arg value="macromodel.result"/>
+			<arg value="macromodel.maegz"/>
+		</exec>
+		<!-- Check InChI -->
+		<antcall
+			target="macromodel-check"
+		>
+			<param
+				name="macromodel-file"
+				value="macromodel.result"
+			/>
+		</antcall>
+		<!-- Clean up -->
+		<copy
+			file="${qdb.compound.dir}/macromodel.result"
+			tofile="${qdb.compound.dir}/${macromodel.cargo}"
+		/>
+		<delete>
+			<fileset 
+				dir="${qdb.compound.dir}"
+				excludes="${macromodel.cargo}"
+				includes="macromodel.*"
+			/>
+		</delete>
+	</target>
+
+	<target
+		name="macromodel-check"
+	>
+		<taskdef
+			name="mol2nitronormalization"
+			classname="org.qsardb.toolkit.workflow.Mol2NitroNormalizationTask"
+		/>
+
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${structconvert.exe}"
+			failonerror="true"
+		>
+			<arg value="-imae"/>
+			<arg value="macromodel.result"/>
+			<arg value="-omol2"/>
+			<arg value="macromodel.mol2"/>
+		</exec>
+		<mol2nitronormalization
+			file="${qdb.compound.dir}/macromodel.mol2"
+		/>
+		<exec
+			dir="${qdb.compound.dir}"
+			errorproperty="macromodel.inchi.error"
+			executable="${babel.exe}"
+			failonerror="true"
+			outputproperty="macromodel.inchi.output"
+		>
+			<arg value="-imol2"/>
+			<arg value="macromodel.mol2"/>
+			<arg value="-oinchi"/>
+		</exec>
+		<antcall
+			target="inchi-check"
+		>
+			<param
+				name="inchi"
+				value="${macromodel.inchi.output}"
+			/>
+		</antcall>
+	</target>
+
+	<target
+		name="macromodel-convert"
+	>
+		<exec
+			dir="${qdb.compound.dir}"
+			executable="${structconvert.exe}"
+			failonerror="true"
+		>
+			<arg value="-imae"/>
+			<arg value="${macromodel.cargo}"/>
+			<arg value="-omol2"/>
+			<arg value="${macromodel.cargo}.mol2"/>
+		</exec>
+	</target>
+
+	<target
+		name="macromodel-convert-clean"
+	>
+		<delete
+			file="${qdb.compound.dir}/${macromodel.cargo}.mol2"
+		/>
+	</target>
+</project>

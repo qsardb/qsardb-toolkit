@@ -1,0 +1,5 @@
+bmin.exe= /usr/local/schrodinger/bmin
+maesubset.exe=/usr/local/schrodinger/utilities/maesubset
+structconvert.exe=/usr/local/schrodinger/utilities/structconvert
+
+macromodel.cargo=macromodel-output
