@@ -40,10 +40,10 @@ public class MarvinUtil {
 	 * @throws CurationException If the identity changes during conversion.
 	 */
 	static
-	public String nameToInChI(String name) throws Exception {
+	public String nameToInChI(String name, boolean standard) throws Exception {
 		Molecule molecule = parseName(name);
 
-		String inChI = formatInChI(molecule);
+		String inChI = formatInChI(molecule, standard);
 
 		Molecule inChIMolecule = parseInChI(inChI);
 		if(!(formatName(molecule)).equals(formatName(inChIMolecule))){
@@ -89,10 +89,15 @@ public class MarvinUtil {
 
 	static
 	public String formatInChI(Molecule molecule) throws Exception {
+		return formatInChI(molecule, true);
+	}
+
+	static
+	public String formatInChI(Molecule molecule, boolean standard) throws Exception {
 		ByteArrayOutputStream os = new ByteArrayOutputStream(512);
 
 		try {
-			MolExporter exporter = new MolExporter(os, "inchi:AuxNone");
+			MolExporter exporter = new MolExporter(os, "inchi:AuxNone" + (standard ? "" : ",FixedH,SUU"));
 			exporter.write(molecule);
 
 			String inChI = os.toString("US-ASCII");

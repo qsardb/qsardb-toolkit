@@ -6,8 +6,17 @@ package org.qsardb.toolkit.curation;
 import org.qsardb.model.*;
 
 import com.beust.jcommander.*;
+import com.beust.jcommander.Parameter;
 
 public class InChIGenerator extends Generator {
+
+	@Parameter (
+		names = {"--standard"},
+		description = "Standard InChI (suppress non-standard InChI options FixedH and SUU)",
+		arity = 1
+	)
+	private boolean standard = true;
+
 
 	static
 	public void main(String... args) throws Exception {
@@ -37,7 +46,7 @@ public class InChIGenerator extends Generator {
 			String name = compound.getName();
 			String inChI = compound.getInChI();
 
-			compound.setInChI(MarvinUtil.nameToInChI(name));
+			compound.setInChI(MarvinUtil.nameToInChI(name, this.standard));
 
 			changed |= MarvinUtil.isChanged(inChI, compound.getInChI());
 		}
