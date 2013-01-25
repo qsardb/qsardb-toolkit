@@ -13,6 +13,7 @@ import org.qsardb.model.*;
 import org.qsardb.toolkit.*;
 
 import com.beust.jcommander.*;
+import com.beust.jcommander.Parameter;
 
 import net.sf.blueobelisk.*;
 
@@ -165,6 +166,14 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 	)
 	private class PurgeCommand extends Command {
 
+		@Parameter (
+			names = {"--variable"},
+			description = "Require variability",
+			arity = 1
+		)
+		private boolean variable = false;
+
+
 		@Override
 		public void execute() throws Exception {
 			List<Descriptor> badDescriptors = new ArrayList<Descriptor>();
@@ -172,7 +181,7 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 			DescriptorRegistry descriptors = getContainerRegistry();
 
 			for(Descriptor descriptor : descriptors){
-				boolean calculable = isCalculable(descriptor);
+				boolean calculable = isValid(descriptor);
 
 				if(!calculable){
 					badDescriptors.add(descriptor);
@@ -184,7 +193,7 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 			descriptors.storeChanges();
 		}
 
-		private boolean isCalculable(Descriptor descriptor) throws IOException {
+		private boolean isValid(Descriptor descriptor) throws IOException {
 
 			if(!descriptor.hasCargo(ValuesCargo.class)){
 				return false;
@@ -196,7 +205,24 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 
 			Set<String> uniqueValues = new LinkedHashSet<String>(values.values());
 
-			return !(uniqueValues.size() == 1 && uniqueValues.contains(null));
+			if(uniqueValues.size() == 0){
+				return false;
+			}
+
+			if(uniqueValues.size() == 1){
+				String value = (uniqueValues.iterator()).next();
+
+				// All values are "N/A"
+				if(value == null){
+					return false;
+				}
+
+				return !(this.variable);
+			} else
+
+			{
+				return true;
+			}
 		}
 	}
 
