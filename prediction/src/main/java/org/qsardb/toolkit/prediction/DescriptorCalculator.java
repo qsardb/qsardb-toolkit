@@ -261,21 +261,11 @@ public class DescriptorCalculator {
 			String id = entry.getKey();
 			BigDecimal value = entry.getValue();
 
-			if(value == null){
-				result.put(id, value);
-			} else
-
-			{
-				BigDecimal longValue = new BigDecimal(value.longValue());
-
-				if((value).compareTo(longValue) == 0){
-					result.put(id, longValue);
-				} else
-
-				{
-					result.put(id, value);
-				}
+			if(value != null && (value).compareTo(BigDecimal.ZERO) == 0){
+				value = BigDecimal.ZERO;
 			}
+
+			result.put(id, value);
 		}
 
 		return result;
