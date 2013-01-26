@@ -167,11 +167,10 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 	private class PurgeCommand extends Command {
 
 		@Parameter (
-			names = {"--variable"},
-			description = "Require variability",
-			arity = 1
+			names = {"--categories"},
+			description = "The minimum number of unique values"
 		)
-		private boolean variable = false;
+		private int categories = 1;
 
 
 		@Override
@@ -205,10 +204,6 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 
 			Set<String> uniqueValues = new LinkedHashSet<String>(values.values());
 
-			if(uniqueValues.size() == 0){
-				return false;
-			}
-
 			if(uniqueValues.size() == 1){
 				String value = (uniqueValues.iterator()).next();
 
@@ -216,13 +211,9 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 				if(value == null){
 					return false;
 				}
-
-				return !(this.variable);
-			} else
-
-			{
-				return true;
 			}
+
+			return (uniqueValues.size() >= this.categories);
 		}
 	}
 
