@@ -188,7 +188,7 @@ public class DescriptorCalculator {
 			Descriptor descriptor = descriptors.get(descriptorInfo.getId());
 
 			ValuesCargo valuesCargo = descriptor.getOrAddCargo(ValuesCargo.class);
-			valuesCargo.storeBigDecimalMap(round(collector.getValues()));
+			valuesCargo.storeBigDecimalMap(truncate(round(collector.getValues())));
 		}
 
 		descriptors.storeChanges();
@@ -227,6 +227,7 @@ public class DescriptorCalculator {
 		}
 
 		Map<String, BigDecimal> result = new LinkedHashMap<String, BigDecimal>();
+
 		for(Map.Entry<String, BigDecimal> entry : values.entrySet()){
 			String id = entry.getKey();
 			BigDecimal value = entry.getValue();
@@ -240,16 +241,39 @@ public class DescriptorCalculator {
 				BigDecimal minPlus2Value = value.setScale(min + 2, RoundingMode.HALF_UP);
 
 				if((minValue).compareTo(minPlus2Value) == 0){
-
-					if((minValue).compareTo(BigDecimal.ZERO) == 0){
-						minValue = BigDecimal.ZERO;
-					}
-
 					result.put(id, minValue);
 				} else
 
 				{
 					result.put(id, minPlus2Value);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	static
+	private Map<String, BigDecimal> truncate(Map<String, BigDecimal> values){
+		Map<String, BigDecimal> result = new LinkedHashMap<String, BigDecimal>();
+
+		for(Map.Entry<String, BigDecimal> entry : values.entrySet()){
+			String id = entry.getKey();
+			BigDecimal value = entry.getValue();
+
+			if(value == null){
+				result.put(id, value);
+			} else
+
+			{
+				BigDecimal longValue = new BigDecimal(value.longValue());
+
+				if((value).compareTo(longValue) == 0){
+					result.put(id, longValue);
+				} else
+
+				{
+					result.put(id, value);
 				}
 			}
 		}
