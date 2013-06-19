@@ -34,6 +34,7 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 		commander.addCommand(manager.new PurgeCommand());
 		commander.addCommand(manager.new AttachValuesCommand());
 		commander.addCommand(manager.new AttachUcumCommand());
+		commander.addCommand(manager.new AttachBibTeXCommand());
 		commander.addCommand(manager.new RemoveCommand());
 
 		Command command;

@@ -11,6 +11,7 @@ import org.qsardb.model.*;
 
 import com.beust.jcommander.*;
 import com.beust.jcommander.Parameter;
+import org.qsardb.cargo.bibtex.BibTeXCargo;
 
 abstract
 public class ParameterRegistryManager<R extends ParameterRegistry<R, P>, P extends org.qsardb.model.Parameter<R, P>> extends ContainerRegistryManager<R, P> {
@@ -61,6 +62,31 @@ public class ParameterRegistryManager<R extends ParameterRegistry<R, P>, P exten
 		@Override
 		public Payload getPayload(){
 			return new StringPayload(this.ucum);
+		}
+	}
+
+	@Parameters (
+		commandNames = {"attach-bibtex"},
+		commandDescription = "Attach BibTeX Cargo"
+	)
+	protected class AttachBibTeXCommand extends ContainerRegistryManager<R, P>.AttachFileCommand {
+
+		@Parameter (
+			names = {"--bibtex"},
+			description = "BibTeX formatted file",
+			required = true
+		)
+		private File file = null;
+
+
+		@Override
+		public String getId(){
+			return BibTeXCargo.ID;
+		}
+
+		@Override
+		public File getFile() {
+			return this.file;
 		}
 	}
 }
