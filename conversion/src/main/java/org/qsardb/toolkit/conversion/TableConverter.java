@@ -108,6 +108,18 @@ public class TableConverter extends Converter {
 	)
 	private boolean predict = false;
 
+	@Parameter (
+		names = "--model-id",
+		description = "Model ID for the regression equation."
+	)
+	private String modelId = null;
+
+	@Parameter (
+		names = "--model-name",
+		description = "Model name for the regression equation."
+	)
+	private String modelName = null;
+
 
 	@Override
 	public void convert() throws Exception {
@@ -131,8 +143,9 @@ public class TableConverter extends Converter {
 
 		Property property = FieldNameUtil.decodeProperty(qdb, modelManager.getTarget());
 
-		Model model = new Model("regression", property);
-		model.setName("Regression");
+		modelId = modelId != null ? modelId : "regression";
+		Model model = new Model(modelId, property);
+		model.setName(modelName != null ? modelName : "Regression");
 
 		PMMLCargo pmmlCargo = model.addCargo(PMMLCargo.class);
 		pmmlCargo.storePmml(modelManager.getPmml());
