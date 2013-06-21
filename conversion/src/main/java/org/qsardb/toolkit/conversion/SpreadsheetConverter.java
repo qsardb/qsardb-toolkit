@@ -51,6 +51,12 @@ public class SpreadsheetConverter extends TableConverter {
 	)
 	private File source = null;
 
+	@Parameter (
+		names = "--select-where",
+		description = "Expression for filtering table rows"
+	)
+	private String filterExpression = null;
+
 
 	static
 	public void main(String... args) throws Exception {
@@ -99,6 +105,10 @@ public class SpreadsheetConverter extends TableConverter {
 
 		setup.setBeginRow(this.begin);
 		setup.setEndRow(this.end);
+
+		if (this.filterExpression != null) {
+			setup.setRowFilter(filterExpression);
+		}
 
 		return setup;
 	}
