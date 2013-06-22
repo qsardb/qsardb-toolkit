@@ -106,7 +106,7 @@ public class TableConverter extends Converter {
 		description = "Use the above (multi-)linear regression equation for training",
 		arity = 1
 	)
-	private boolean predict = false;
+	private boolean regressionPredict = false;
 
 	@Parameter (
 		names = "--model-id",
@@ -120,20 +120,40 @@ public class TableConverter extends Converter {
 	)
 	private String modelName = null;
 
+	@Parameter (
+		names = "--prediction",
+		description = "Predicted values column."
+	)
+	private String predictionColumn = null;
+
+	@Parameter (
+		names = "--prediction-type",
+		description = "Prediction type (training, validation, or testing) for predicted values column."
+	)
+	private String predictionType = "training";
+
 
 	@Override
 	public void convert() throws Exception {
 		Table table = createTable();
 		TableSetup tableSetup = createTableSetup();
 
+		if(this.regression != null){
+			convertRegression();
+		}
+
+		if (predictionColumn != null) {
+			createPredictionMapping(tableSetup);
+		}
+
 		Table2Qdb.convert(getQdb(), table, tableSetup);
 
-		if(this.regression != null){
-			convertRegression(this.predict);
+		if(this.regressionPredict){
+			performTraining();
 		}
 	}
 
-	private void convertRegression(boolean predict) throws Exception {
+	private void convertRegression() throws Exception {
 		Qdb qdb = getQdb();
 
 		EquationParser parser = new EquationParser();
@@ -152,15 +172,12 @@ public class TableConverter extends Converter {
 
 		ModelRegistry models = qdb.getModelRegistry();
 		models.add(model);
-
-		if(predict){
-			performTraining(model);
-		}
 	}
 
-	private void performTraining(Model model) throws Exception {
+	private void performTraining() throws Exception {
 		Qdb qdb = getQdb();
 
+		Model model = qdb.getModel(modelId);
 		Property property = model.getProperty();
 
 		DecimalFormat format = Evaluator.getFormat(property);
@@ -207,6 +224,32 @@ public class TableConverter extends Converter {
 
 		PredictionRegistry predictions = qdb.getPredictionRegistry();
 		predictions.add(prediction);
+	}
+
+	private Prediction getOrCreatePrediction() {
+		if (modelId == null){
+			throw new IllegalArgumentException("Missing model ID (check --regression or --model-id options)");
+		}
+
+		Model model = getQdb().getModel(modelId);
+		if (model == null){
+			throw new IllegalArgumentException("Unknown model: " + modelId);
+		}
+
+		String typePrefix = predictionType.split("-", 2)[0].toUpperCase();
+		Prediction.Type type = Prediction.Type.valueOf(typePrefix);
+
+		String predId = modelId + "-" + predictionType;
+
+		Prediction prediction = getQdb().getPrediction(predId);
+		if (prediction == null) {
+			prediction = new Prediction(predId, model, type);
+			prediction.setName(predictionType.substring(0,1).toUpperCase()
+				+ predictionType.substring(1).toLowerCase());
+			getQdb().getPredictionRegistry().add(prediction);
+		}
+
+		return prediction;
 	}
 
 	private String getValue(Descriptor descriptor, String id) throws IOException {
@@ -377,6 +420,12 @@ public class TableConverter extends Converter {
 		}
 
 		setup.addMapping(column, mapping);
+	}
+
+	private void createPredictionMapping(TableSetup setup){
+		Prediction prediction = getOrCreatePrediction();
+		Mapping valuesMapping = new PredictionValuesMapping<String>(prediction, new StringFormat());
+		setup.addMapping(predictionColumn, valuesMapping);
 	}
 
 	protected String prepareId(String column){
