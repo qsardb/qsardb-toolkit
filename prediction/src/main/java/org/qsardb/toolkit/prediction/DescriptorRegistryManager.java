@@ -230,6 +230,21 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 		commandNames = {"set-attribute"},
 		commandDescription = "Set descriptor attributes"
 	)
-	private class SetCommand extends ContainerRegistryManager<DescriptorRegistry, Descriptor>.SetCommand {
+	private class SetCommand extends ParameterRegistryManager<DescriptorRegistry, Descriptor>.SetCommand {
+
+		@Parameter (
+			names = {"--application"},
+			description = "Set application attribute"
+		)
+		private String application;
+
+		@Override
+		public void handleAttributeOptions(Descriptor descriptor) {
+			super.handleAttributeOptions(descriptor);
+
+			if (application != null){
+				descriptor.setApplication(application);
+			}
+		}
 	}
 }
