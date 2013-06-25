@@ -9,6 +9,7 @@ import org.qsardb.model.*;
 import org.qsardb.toolkit.*;
 
 import com.beust.jcommander.*;
+import com.beust.jcommander.Parameter;
 
 public class PropertyRegistryManager extends ParameterRegistryManager<PropertyRegistry, Property>{
 
@@ -78,6 +79,31 @@ public class PropertyRegistryManager extends ParameterRegistryManager<PropertyRe
 		commandNames = {"set-attribute"},
 		commandDescription = "Set property attributes"
 	)
-	private class SetCommand extends ContainerRegistryManager<PropertyRegistry, Property>.SetCommand {
+	private class SetCommand extends ParameterRegistryManager<PropertyRegistry, Property>.SetCommand {
+
+		@Parameter (
+			names = {"--species"},
+			description = "Set species attribute. Use \"Binomial name (common name)\" format."
+		)
+		private String species = null;
+
+		@Parameter (
+			names = {"--endpoint"},
+			description = "Set endpoint attribute (QMRF classification system)"
+		)
+		private String endpoint = null;
+
+		@Override
+		public void handleAttributeOptions(Property property) {
+			super.handleAttributeOptions(property);
+
+			if (species != null){
+				property.setSpecies(species);
+			}
+
+			if (endpoint != null) {
+				property.setEndpoint(endpoint);
+			}
+		}
 	}
 }
