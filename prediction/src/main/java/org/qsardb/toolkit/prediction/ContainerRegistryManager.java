@@ -141,5 +141,42 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 		}
 	}
 
+	abstract
+	protected class SetCommand extends Command {
+
+		@Parameter (
+			names = {"--id"},
+			description = "Id",
+			required = true
+		)
+		protected String id = null;
+
+		@Parameter (
+			names = {"--name"},
+			description = "Set name attribute"
+		)
+		protected String name = null;
+
+		public void handleAttributeOptions(C container) {
+			if (this.name != null) {
+				container.setName(this.name);
+			}
+		}
+
+		@Override
+		public void execute() throws Exception {
+			R registry = getContainerRegistry();
+
+			C container = registry.get(this.id);
+			if(container == null){
+				throw new IllegalArgumentException("Id \'" + this.id + "\' not found");
+			}
+
+			handleAttributeOptions(container);
+
+			registry.storeChanges();
+		}
+	}
+
 	protected static final String MULTI_VALUE_MESSAGE = "If there are multiple values, use commas (',') to separate them";
 }

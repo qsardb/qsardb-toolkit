@@ -24,6 +24,7 @@ public class PropertyRegistryManager extends ParameterRegistryManager<PropertyRe
 		commander.addCommand(manager.new AttachUcumCommand());
 		commander.addCommand(manager.new AttachBibTeXCommand());
 		commander.addCommand(manager.new RemoveCommand());
+		commander.addCommand(manager.new SetCommand());
 
 		Command command;
 
@@ -71,5 +72,12 @@ public class PropertyRegistryManager extends ParameterRegistryManager<PropertyRe
 		commandDescription = "Remove existing property"
 	)
 	private class RemoveCommand extends ContainerRegistryManager<PropertyRegistry, Property>.RemoveCommand {
+	}
+
+	@Parameters (
+		commandNames = {"set-attribute"},
+		commandDescription = "Set property attributes"
+	)
+	private class SetCommand extends ContainerRegistryManager<PropertyRegistry, Property>.SetCommand {
 	}
 }

@@ -28,6 +28,7 @@ public class ModelRegistryManager extends ContainerRegistryManager<ModelRegistry
 		commander.addCommand(manager.new AttachPmmlCommand());
 		commander.addCommand(manager.new AttachRdsCommand());
 		commander.addCommand(manager.new RemoveCommand());
+		commander.addCommand(manager.new SetCommand());
 
 		Command command;
 
@@ -155,5 +156,12 @@ public class ModelRegistryManager extends ContainerRegistryManager<ModelRegistry
 
 			predictions.storeChanges();
 		}
+	}
+
+	@Parameters (
+		commandNames = {"set-attribute"},
+		commandDescription = "Set model attributes"
+	)
+	private class SetCommand extends ContainerRegistryManager<ModelRegistry, Model>.SetCommand {
 	}
 }

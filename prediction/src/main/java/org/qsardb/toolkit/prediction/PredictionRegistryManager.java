@@ -24,6 +24,7 @@ public class PredictionRegistryManager extends ParameterRegistryManager<Predicti
 		commander.addCommand(manager.new AttachValuesCommand());
 		commander.addCommand(manager.new AttachUcumCommand());
 		commander.addCommand(manager.new RemoveCommand());
+		commander.addCommand(manager.new SetCommand());
 
 		Command command;
 
@@ -91,5 +92,12 @@ public class PredictionRegistryManager extends ParameterRegistryManager<Predicti
 		commandDescription = "Remove existing prediction"
 	)
 	private class RemoveCommand extends ContainerRegistryManager<PredictionRegistry, Prediction>.RemoveCommand {
+	}
+
+	@Parameters (
+		commandNames = {"set-attribute"},
+		commandDescription = "Set prediction attributes"
+	)
+	private class SetCommand extends ContainerRegistryManager<PredictionRegistry, Prediction>.SetCommand {
 	}
 }

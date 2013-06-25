@@ -36,6 +36,7 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 		commander.addCommand(manager.new AttachUcumCommand());
 		commander.addCommand(manager.new AttachBibTeXCommand());
 		commander.addCommand(manager.new RemoveCommand());
+		commander.addCommand(manager.new SetCommand());
 
 		Command command;
 
@@ -223,5 +224,12 @@ public class DescriptorRegistryManager extends ParameterRegistryManager<Descript
 		commandDescription = "Remove existing descriptor"
 	)
 	private class RemoveCommand extends ContainerRegistryManager<DescriptorRegistry, Descriptor>.RemoveCommand {
+	}
+
+	@Parameters (
+		commandNames = {"set-attribute"},
+		commandDescription = "Set descriptor attributes"
+	)
+	private class SetCommand extends ContainerRegistryManager<DescriptorRegistry, Descriptor>.SetCommand {
 	}
 }
