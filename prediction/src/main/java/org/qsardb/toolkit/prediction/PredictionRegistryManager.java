@@ -98,6 +98,21 @@ public class PredictionRegistryManager extends ParameterRegistryManager<Predicti
 		commandNames = {"set-attribute"},
 		commandDescription = "Set prediction attributes"
 	)
-	private class SetCommand extends ContainerRegistryManager<PredictionRegistry, Prediction>.SetCommand {
+	private class SetCommand extends ParameterRegistryManager<PredictionRegistry, Prediction>.SetCommand {
+
+		@Parameter (
+			names = {"--application"},
+			description = "Set application attribute"
+		)
+		private String application;
+
+		@Override
+		public void handleAttributeOptions(Prediction prediction) {
+			super.handleAttributeOptions(prediction);
+
+			if (application != null){
+				prediction.setApplication(application);
+			}
+		}
 	}
 }
