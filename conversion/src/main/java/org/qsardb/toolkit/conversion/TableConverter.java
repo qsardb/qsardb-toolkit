@@ -97,7 +97,7 @@ public class TableConverter extends Converter {
 
 	@Parameter (
 		names = "--regression",
-		description = "(Multi-)linear regression equation. Use a Property Id as a dependent variable and Descriptor Id(s) as independent variables"
+		description = "(Multi-)linear regression equation. Use a Property Id as a dependent variable and Descriptor Id(s) as independent variables (e.g. \"pC = 0.7*logP + 2\")"
 	)
 	private String regression = null;
 
