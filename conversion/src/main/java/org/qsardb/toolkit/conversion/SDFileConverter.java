@@ -66,4 +66,15 @@ public class SDFileConverter extends TableConverter {
 
 		return setup;
 	}
+
+	@Override
+	protected String prepareId(String column) {
+		return column.replaceAll("\\s", "_");
+	}
+
+	@Override
+	protected String prepareName(String column) {
+		return column;
+	}
+
 }
