@@ -8,8 +8,9 @@ import com.beust.jcommander.ParameterException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import org.qsardb.conversion.csv.CsvExporter;
 import org.qsardb.conversion.table.TableExporter;
+import org.qsardb.conversion.csv.CsvExporter;
+import org.qsardb.conversion.excel.ExcelExporter;
 import org.qsardb.model.Model;
 import org.qsardb.model.Qdb;
 import org.qsardb.model.QdbException;
@@ -42,8 +43,7 @@ public class SpreadSheetExporter {
 	public void run() throws Exception {
 		qdb = new Qdb(StorageUtil.openInput(qdbPath));
 
-		FileOutputStream os = new FileOutputStream(target);
-		TableExporter exporter = new CsvExporter(os);
+		TableExporter exporter = getTableExporter();
 
 		if (modelId == null) {
 			exporter.prepareDataSet(qdb);
@@ -55,6 +55,19 @@ public class SpreadSheetExporter {
 			exporter.write();
 		} finally {
 			exporter.close();
+		}
+	}
+
+	private TableExporter getTableExporter() throws IOException {
+		FileOutputStream os = new FileOutputStream(target);
+
+		String name = target.getName().toLowerCase();
+		if (name.endsWith(".xlsx")) {
+			return new ExcelExporter(os);
+		} else if (name.endsWith(".xls")) {
+			return new ExcelExporter(os, true);
+		} else {
+			return new CsvExporter(os);
 		}
 	}
 
