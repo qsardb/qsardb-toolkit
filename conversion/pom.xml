@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.qsardb</groupId>
 		<artifactId>qsardb-toolkit</artifactId>
-		<version>1.0.0</version>
+		<version>1.1-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.qsardb.toolkit</groupId>
@@ -25,53 +25,53 @@
 		<dependency>
 			<groupId>org.qsardb</groupId>
 			<artifactId>evaluation</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>codessa</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>csv</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>excel</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>opendocument</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>qmrf</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>regression</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>sdfile</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>spreadsheet</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.conversion</groupId>
 			<artifactId>table</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

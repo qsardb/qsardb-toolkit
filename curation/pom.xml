@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.qsardb</groupId>
 		<artifactId>qsardb-toolkit</artifactId>
-		<version>1.0.0</version>
+		<version>1.1-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.qsardb.toolkit</groupId>
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.qsardb.resolution</groupId>
 			<artifactId>chemical</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
