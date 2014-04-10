@@ -27,6 +27,7 @@ public class ModelRegistryManager extends ContainerRegistryManager<ModelRegistry
 		commander.addCommand(manager.new AddCommand());
 		commander.addCommand(manager.new AttachPmmlCommand());
 		commander.addCommand(manager.new AttachRdsCommand());
+		commander.addCommand(manager.new AttachBibTeXCommand());
 		commander.addCommand(manager.new RemoveCommand());
 		commander.addCommand(manager.new SetCommand());
 

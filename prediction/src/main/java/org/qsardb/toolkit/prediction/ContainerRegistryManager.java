@@ -3,13 +3,15 @@
  */
 package org.qsardb.toolkit.prediction;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import java.io.*;
 import java.util.*;
+import org.qsardb.cargo.bibtex.BibTeXCargo;
 
 import org.qsardb.model.*;
 import org.qsardb.toolkit.*;
 
-import com.beust.jcommander.Parameter;
 
 abstract
 public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C extends Container<R, C>> extends Manager {
@@ -112,6 +114,30 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 			}
 
 			return ByteArrayPayload.EMPTY;
+		}
+	}
+
+	@Parameters (
+		commandNames = {"attach-bibtex"},
+		commandDescription = "Attach BibTeX Cargo"
+	)
+	protected class AttachBibTeXCommand extends AttachFileCommand {
+
+		@Parameter (
+			names = {"--bibtex"},
+			description = "BibTeX formatted file",
+			required = true
+		)
+		private File file = null;
+
+		@Override
+		public String getId(){
+			return BibTeXCargo.ID;
+		}
+
+		@Override
+		public File getFile() {
+			return this.file;
 		}
 	}
 

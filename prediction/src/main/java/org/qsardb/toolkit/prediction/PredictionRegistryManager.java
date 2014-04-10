@@ -23,6 +23,7 @@ public class PredictionRegistryManager extends ParameterRegistryManager<Predicti
 		commander.addCommand(manager.new AddCommand());
 		commander.addCommand(manager.new AttachValuesCommand());
 		commander.addCommand(manager.new AttachUcumCommand());
+		commander.addCommand(manager.new AttachBibTeXCommand());
 		commander.addCommand(manager.new RemoveCommand());
 		commander.addCommand(manager.new SetCommand());
 
