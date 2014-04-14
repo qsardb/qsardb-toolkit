@@ -20,22 +20,22 @@
 		<dependency>
 			<groupId>org.qsardb.cargo</groupId>
 			<artifactId>bodo</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.cargo</groupId>
 			<artifactId>rds</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.cargo</groupId>
 			<artifactId>structure</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.qsardb.cargo</groupId>
 			<artifactId>ucum</artifactId>
-			<version>1.0.0</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -97,7 +97,7 @@
 	 <dependency>
 	  <groupId>org.qsardb.cargo</groupId>
 	  <artifactId>bibtex</artifactId>
-	  <version>1.0.0</version>
+	  <version>1.1-SNAPSHOT</version>
 	  <type>jar</type>
 	 </dependency>
 	</dependencies>
