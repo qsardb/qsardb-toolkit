@@ -23,9 +23,8 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 	abstract
 	public R getContainerRegistry();
 
-
 	abstract
-	protected class AddCommand extends Command {
+	protected class ContainerCommand extends Command {
 
 		@Parameter (
 			names = {"--id"},
@@ -33,6 +32,21 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 			required = true
 		)
 		protected String id = null;
+
+		protected C findContainer() {
+			R registry = getContainerRegistry();
+
+			C container = registry.get(this.id);
+			if(container == null){
+				throw new IllegalArgumentException("Id \'" + this.id + "\' not found");
+			}
+
+			return container;
+		}
+	}
+
+	abstract
+	protected class AddCommand extends ContainerCommand {
 
 		@Parameter (
 			names = {"--name"},
@@ -71,15 +85,7 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 	}
 
 	abstract
-	protected class AttachCommand extends Command {
-
-		@Parameter (
-			names = {"--id"},
-			description = "Id",
-			required = true
-		)
-		protected String id = null;
-
+	protected class AttachCommand extends ContainerCommand {
 
 		abstract
 		public String getId();
@@ -89,17 +95,11 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 
 		@Override
 		public void execute() throws Exception {
-			R registry = getContainerRegistry();
-
-			C container = registry.get(this.id);
-			if(container == null){
-				throw new IllegalArgumentException("Id \'" + this.id + "\' not found");
-			}
-
+			C container = findContainer();
 			Cargo<C> cargo = container.getOrAddCargo(getId());
 			cargo.setPayload(getPayload());
 
-			registry.storeChanges();
+			getContainerRegistry().storeChanges();
 		}
 	}
 
@@ -149,13 +149,7 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 		commandNames = {"add-citation"},
 		commandDescription = "Add bibliography entry to the BibTeX Cargo"
 	)
-	protected class AddBibTeXCommand extends Command {
-		@Parameter (
-			names = {"--id"},
-			description = "Id",
-			required = true
-		)
-		private String id = null;
+	protected class AddBibTeXCommand extends ContainerCommand {
 
 		@Parameter (
 			names = ("--doi"),
@@ -166,12 +160,7 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 
 		@Override
 		public void execute() throws Exception {
-			R registry = getContainerRegistry();
-
-			C container = registry.get(this.id);
-			if(container == null){
-				throw new IllegalArgumentException("Id \'" + this.id + "\' not found");
-			}
+			C container = findContainer();
 
 			BibTeXEntry entry = resolveDOI();
 
@@ -185,7 +174,7 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 			db.addObject(entry);
 
 			cargo.storeBibTeX(db);
-			registry.storeChanges();
+			getContainerRegistry().storeChanges();
 		}
 
 		private BibTeXEntry resolveDOI() {
@@ -206,40 +195,20 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 	}
 
 	abstract
-	protected class RemoveCommand extends Command {
-
-		@Parameter (
-			names = {"--id"},
-			description = "Id",
-			required = true
-		)
-		protected String id = null;
-
+	protected class RemoveCommand extends ContainerCommand {
 
 		@Override
 		public void execute() throws Exception {
-			R registry = getContainerRegistry();
+			C container = findContainer();
 
-			C container = registry.get(this.id);
-			if(container == null){
-				throw new IllegalArgumentException("Id \'" + this.id + "\' not found");
-			}
+			getContainerRegistry().remove(container);
 
-			registry.remove(container);
-
-			registry.storeChanges();
+			getContainerRegistry().storeChanges();
 		}
 	}
 
 	abstract
-	protected class SetCommand extends Command {
-
-		@Parameter (
-			names = {"--id"},
-			description = "Id",
-			required = true
-		)
-		protected String id = null;
+	protected class SetCommand extends ContainerCommand {
 
 		@Parameter (
 			names = {"--name"},
@@ -255,16 +224,11 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 
 		@Override
 		public void execute() throws Exception {
-			R registry = getContainerRegistry();
-
-			C container = registry.get(this.id);
-			if(container == null){
-				throw new IllegalArgumentException("Id \'" + this.id + "\' not found");
-			}
+			C container = findContainer();
 
 			handleAttributeOptions(container);
 
-			registry.storeChanges();
+			getContainerRegistry().storeChanges();
 		}
 	}
 
