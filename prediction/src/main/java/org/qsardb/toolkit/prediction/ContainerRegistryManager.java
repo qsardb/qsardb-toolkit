@@ -7,9 +7,13 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import org.jbibtex.BibTeXDatabase;
+import org.jbibtex.BibTeXEntry;
 import org.qsardb.cargo.bibtex.BibTeXCargo;
 
 import org.qsardb.model.*;
+import org.qsardb.resolution.doi.DOIResolver;
 import org.qsardb.toolkit.*;
 
 
@@ -138,6 +142,66 @@ public class ContainerRegistryManager<R extends ContainerRegistry<R, C>, C exten
 		@Override
 		public File getFile() {
 			return this.file;
+		}
+	}
+
+	@Parameters (
+		commandNames = {"add-citation"},
+		commandDescription = "Add bibliography entry to the BibTeX Cargo"
+	)
+	protected class AddBibTeXCommand extends Command {
+		@Parameter (
+			names = {"--id"},
+			description = "Id",
+			required = true
+		)
+		private String id = null;
+
+		@Parameter (
+			names = ("--doi"),
+			description = "Resolve citation from DOI code",
+			required = true
+		)
+		private String doi = null;
+
+		@Override
+		public void execute() throws Exception {
+			R registry = getContainerRegistry();
+
+			C container = registry.get(this.id);
+			if(container == null){
+				throw new IllegalArgumentException("Id \'" + this.id + "\' not found");
+			}
+
+			BibTeXEntry entry = resolveDOI();
+
+			BibTeXCargo cargo = container.getOrAddCargo(BibTeXCargo.class);
+
+			BibTeXDatabase db = loadBibTeX(cargo);
+			if (db.resolveEntry(entry.getKey()) != null) {
+				logger.log(Level.WARNING, "Entry for {0} already exists.", entry.getKey().getValue());
+				return;
+			}
+			db.addObject(entry);
+
+			cargo.storeBibTeX(db);
+			registry.storeChanges();
+		}
+
+		private BibTeXEntry resolveDOI() {
+			try {
+				return DOIResolver.asBibTeXEntry(this.doi);
+			} catch (IOException e) {
+				throw new IllegalArgumentException("Unresolvable DOI: "+this.doi, e);
+			}
+		}
+
+		private BibTeXDatabase loadBibTeX(BibTeXCargo cargo) throws Exception {
+			if (cargo.isLoadable()) {
+				return cargo.loadBibTeX();
+			} else {
+				return new BibTeXDatabase();
+			}
 		}
 	}
 

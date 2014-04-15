@@ -100,6 +100,12 @@
 	  <version>1.1-SNAPSHOT</version>
 	  <type>jar</type>
 	 </dependency>
+	 <dependency>
+	  <groupId>org.qsardb.resolution</groupId>
+	  <artifactId>doi</artifactId>
+	  <version>1.1-SNAPSHOT</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 
 	<repositories>
