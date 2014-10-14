@@ -19,6 +19,7 @@ import org.qsardb.model.*;
 import org.jpmml.manager.*;
 
 import com.beust.jcommander.Parameter;
+import org.dmg.pmml.PMML;
 
 abstract
 public class TableConverter extends Converter {
@@ -159,16 +160,16 @@ public class TableConverter extends Converter {
 		EquationParser parser = new EquationParser();
 		Equation equation = parser.parseEquation(this.regression);
 
-		RegressionModelManager modelManager = RegressionUtil.parse(qdb, equation);
+		PMML pmml = RegressionUtil.parse(qdb, equation);
 
-		Property property = FieldNameUtil.decodeProperty(qdb, modelManager.getTarget());
+		Property property = qdb.getProperty(equation.getIdentifier());
 
 		modelId = modelId != null ? modelId : "regression";
 		Model model = new Model(modelId, property);
 		model.setName(modelName != null ? modelName : "Regression");
 
 		PMMLCargo pmmlCargo = model.addCargo(PMMLCargo.class);
-		pmmlCargo.storePmml(modelManager.getPmml());
+		pmmlCargo.storePmml(pmml);
 
 		ModelRegistry models = qdb.getModelRegistry();
 		models.add(model);
