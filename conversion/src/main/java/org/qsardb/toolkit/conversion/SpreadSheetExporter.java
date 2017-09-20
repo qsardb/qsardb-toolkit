@@ -12,6 +12,7 @@ import org.qsardb.conversion.table.TableExporter;
 import org.qsardb.conversion.csv.CsvExporter;
 import org.qsardb.conversion.excel.ExcelExporter;
 import org.qsardb.model.Model;
+import org.qsardb.model.Prediction;
 import org.qsardb.model.Qdb;
 import org.qsardb.model.QdbException;
 import org.qsardb.toolkit.StorageUtil;
@@ -38,6 +39,12 @@ public class SpreadSheetExporter {
 	)
 	private String modelId = null;
 
+	@com.beust.jcommander.Parameter (
+		names = {"--prediction-id"},
+		description = "export data related to prediction ID"
+	)
+	private String predictionId = null;
+
 	private Qdb qdb;
 
 	public void run() throws Exception {
@@ -45,10 +52,12 @@ public class SpreadSheetExporter {
 
 		TableExporter exporter = getTableExporter();
 
-		if (modelId == null) {
-			exporter.prepareDataSet(qdb);
-		} else {
+		if (modelId != null) {
 			exporter.prepareModel(getModel(modelId));
+		} else if (predictionId != null) {
+			exporter.preparePrediction(getPrediction(predictionId));
+		} else {
+			exporter.prepareDataSet(qdb);
 		}
 
 		try {
@@ -77,6 +86,14 @@ public class SpreadSheetExporter {
 			return m;
 		}
 		throw new IllegalArgumentException("Nonexistent model: " + modelId);
+	}
+
+	private Prediction getPrediction(String predictionId) {
+		Prediction p = qdb.getPrediction(predictionId);
+		if (p != null) {
+			return p;
+		}
+		throw new IllegalArgumentException("Nonexistent predictionId: " + predictionId);
 	}
 
 	private void close() throws IOException, QdbException {
