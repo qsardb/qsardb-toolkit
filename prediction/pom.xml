@@ -110,8 +110,8 @@
 
 	<repositories>
 		<repository>
-			<id>nexus.ideaconsult.net</id>
-			<url>https://nexus.ideaconsult.net/content/repositories/thirdparty/</url>
+			<id>qsardb.org</id>
+			<url>https://qsardb.org/m2repo/</url>
 		</repository>
 	</repositories>
 

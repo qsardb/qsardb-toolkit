@@ -36,11 +36,9 @@
 		</dependency>
 		<!-- 
 		MarvinBeans depends on a modified JNI-InChI library.
-		For more information see: http://www.chemaxon.com/marvin/help/formats/inchi-doc.html
+		For more information see: https://docs.chemaxon.com/display/docs/IUPAC+InChI+and+InChIKey
 
 		The compiled version of the library is available in the lib directory of MarvinBeans as the file jni-inchi_07.jar.
-		It must be installed into the Maven local repository using the following command:
-		mvn install:install-file -DgroupId=chemaxon.marvin -DartifactId=jni-inchi -Dversion=0.7 -Dpackaging=jar -Dfile=jni-inchi_07.jar
 		-->
 		<dependency>
 			<groupId>chemaxon.marvin</groupId>
@@ -55,6 +53,10 @@
 	</dependencies>
 
 	<repositories>
+		<repository>
+			<id>qsardb.org</id>
+			<url>https://qsardb.org/m2repo/</url>
+		</repository>
 		<repository>
 			<id>www.ebi.ac.uk</id>
 			<url>http://www.ebi.ac.uk/~biobabel/maven2_repo</url>
